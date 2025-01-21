@@ -44,15 +44,15 @@ class SoftwareComponent:
         self.name = name
         self.component_type = component_type  # Type of the component (e.g., "Sensor", "Controller")
         self.runnables = []  # List of Runnable objects
-        self.ports = {}  # Dictionary to map port names to Port objects for efficient lookup
+        self.ports = []
         print(f"The software component '{self.name}' has been succefuly created.")  # Message displayed after creation
     def add_port(self, port):
         """Adds a Port to the component."""
         if not isinstance(port, Port):
             raise TypeError("Expected a Port object.")
-        if port.pname in self.ports:
-            raise ValueError(f"Port with the name '{port.pname}' already exists in component '{self.name}'.")
-        self.ports[port.pname] = port
+        if port.name in self.ports:
+            raise ValueError(f"Port with the name '{port.name}' already exists in component '{self.name}'.")
+        self.ports.append(port)
 
     def add_runnable(self, runnable):
         """Adds a Runnable to the component."""
@@ -97,10 +97,8 @@ class Port:
     Represents a Port for communication in AUTOSAR.
     """
     def __init__(self, name, port_type):
-        self.pname = name
+        self.name = name
         self.port_type = port_type  # Port type: "sender" or "receiver"
-        print(f"Port '{self.pname}' has been succefuly created")
-
 def display_architecture(composition):
     """
     
@@ -110,11 +108,11 @@ def display_architecture(composition):
     for index, component in enumerate(composition.software_components, start=1):
         print(f"    {index}- Nom: '{component.name}', Type: '{component.component_type}'")
         for runn in component.runnables:
-                print(f"Runnable Name: {runn.name}, run_type: {runn.type}" + 
+                print(f"           Runnable Name: {runn.name}, run_type: {runn.type}" + 
       (f", run_period: {runn.period}" if runn.type == "periodic" else ""))
-        for port_obj in component.ports.items():
-            print(f"        Port Name: {port_obj.pname}, Port Type: {port_obj.port_type}")
-            
+        for p in component.ports:
+            print(f"        Port Name: {p.name}, Port Type: {p.port_type}")
+        
 
 
 # Interactive Configuration Function
@@ -160,8 +158,7 @@ while(True):
         print(f"\nSoftware Component '{myswc.name}' Details:")
         print(f"  Type: {myswc.component_type}")
         print(f"  Ports: ")
-        for port_name, port_obj in myswc.ports.items():
-            print(f"    Port Name: {port_obj.pname}, Port Type: {port_obj.port_type}")
+        
         
     elif choice == "4":
         display_architecture(composition)
@@ -174,16 +171,7 @@ while(True):
         run_name,run_type = input("Enter the name of the runnable and its type ").split()
         runnab = Runnable(run_name,run_type)
         myswc.add_runnable(runnab)
-        print(f"\nSoftware Component '{myswc.name}' Details:")
-        print(f"  Type: {myswc.component_type}")
-        print(f"  Ports: ")
-        for port_name, port_obj in myswc.ports.items():
-            print(f"    Port Name: {port_obj.pname}, Port Type: {port_obj.port_type}")
-        for runname, runtype, run_period in myswc.ports.items():
-            if run_period == None :
-                print(f"    Runnable Name: {runname.name}, Runnable type: {runname.type}")
-            else:
-                print(f"    Runnable Name: {runname.name}, Runnable type: {runname.type}, Runnable period:{runname.period} ")
+        
         
 
 
